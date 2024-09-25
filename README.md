@@ -42,4 +42,21 @@ KeilC thường được sử dụng trong phát triển các ứng dụng nhún
 
 </details>
 
+## 2. Blink Led PC13
+
+<details>
+<summary> Details </summary>
+
+![BlinkLedPC13](https://github.com/Fakerrrrrrrrrrr/Embedded_in_Automotive/blob/main/Images/BlinkLedPC13.png)
+
+Trên con vi điều khiển STM32 có các chân A0, A1, A2,... đó là các chân GPIO tổ chức thành các bộ như GPIOA, GPIOB, GPIOC,... mỗi bộ gồm 16 chân là từ chân 0 đến chân 15, các chân có nhiều chức năng, chức năng cơ bản là xuất và nhận điện áp. Ví dụ này xuất ra được điện áp để điều kiển con Led PC13.<br>
+
+Để GPIO hoạt động được cần phải cấp xung clock để GPIO hoạt động. Con vi điều khiển sẽ hoạt động dựa trên giao động được tạo ra bởi thạch anh hay được tạo ra bởi bộ giao động nội.
+
+PC13 có nghĩa là Port ở GPIOC thuộc chân số 13.
+
+
+
+</details>
+
 </details>
