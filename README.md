@@ -80,6 +80,76 @@ Mỗi GPIO có 16 chân, mỗi chân được quyết định bởi 4 bit, nên 
 
 ![8-15](https://github.com/Fakerrrrrrrrrrr/Embedded_in_Automotive/blob/main/Images/8_15_leg.png)
 
+Code điều khiển PC13 với Mode_11 và CNF_00:
+```c
+int main(){
+  RCC->APB2ENR |= RCC_APB2ENR_IOPCEN| RCC_APB2ENR_IOPAEN;
+
+  GPIOC->CRH |= GPIO_CRH_MODE13_0;  //MODE[1:0] = 11: Output mode, max speed 50 MHz.
+  GPIOC->CRH |= GPIO_CRH_MODE13_1;
+  GPIOC->CRH &= ~GPIO_CRH_CNF13_0;  //CNF13[1:0] = 00: General purpose output push-pull.
+  GPIOC->CRH &= ~GPIO_CRH_CNF13_1;
+  while(1){
+  
+  }
+  return 0;
+}
+```
+
+Port output data register (GPIOx_ODR).
+- Gồm 16 bits (ODR0->ODR15) ứng với giá trị logic trên chân tương ứng trong Portx.
+
+```c
+int main(){
+  RCC->APB2ENR |= RCC_APB2ENR_IOPCEN| RCC_APB2ENR_IOPAEN;
+
+  GPIOC->CRH |= GPIO_CRH_MODE13_0;  //MODE[1:0] = 11: Output mode, max speed 50 MHz.
+  GPIOC->CRH |= GPIO_CRH_MODE13_1;
+  GPIOC->CRH &= ~GPIO_CRH_CNF13_0;  //CNF13[1:0] = 00: General purpose output push-pull.
+  GPIOC->CRH &= ~GPIO_CRH_CNF13_1;
+  while(1){
+    GPIOC->ODR |= 1<<13;
+    delay(10000000);
+    GPIOC->ODR &= ~(1<<13);
+    delay(10000000);
+  }
+  return 0;
+}
+```
+
+Delay();<br>
+Hàm delay được tạo bằng cách cho MCU không làm gì trong 1 khoảng thời gian bằng các vòng lặp.
+```c
+void delay(__IO uint32_t timedelay){
+  for(int i = 0; i<timedelay; i++){}
+}
+```
+
+</details>
+
+## 3. Tổng kết & mở rộng
+
+<details>
+<summary> Details </summary>
+
+- Việc code trên thanh ghi  giúp hiểu rõ cách hoạt động chi tiết của từng ngoại vi.
+- Hiện nay các hãng sản xuất đều cung cấp bộ thư viện chuẩn cho từng MCU, trong đó các API được phát triển để người dùng dễ tiếp cận hơn.<br>
+->> Nên sử dụng thư viện chuẩn để code dễ dàng hơn.
+
+</details>
+
+## 4. Đọc trạng thái nút nhấn để điều khiển Led.
+
+<details>
+<summary> Details </summary>
+
+- Pin được chọn là PA0
+
+![Button_PA0](https://github.com/Fakerrrrrrrrrrr/Embedded_in_Automotive/blob/main/Images/Button_PA0.png)
+
+
+
+
 </details>
 
 </details>
