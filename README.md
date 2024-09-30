@@ -143,12 +143,41 @@ void delay(__IO uint32_t timedelay){
 <details>
 <summary> Details </summary>
 
-- Pin được chọn là PA0
+- Pin được chọn là PA0 (ODR: Output Data Register)
 
 ![Button_PA0](https://github.com/Fakerrrrrrrrrrr/Embedded_in_Automotive/blob/main/Images/Button_PA0.png)
 
+- Lắp nút nhấn theo kiểu Pull-Up Resistor
+- Cấu hình ban đầu trạng thái chân PA0 sẽ là mức 1. PA0 kiểu Input Push Pull.
+- Set GPIOA_ODR lên 1. 
 
+```c
+RCC->APB2ENR |= RCC_APB2ENR_IOPAEN; //Kich hoat xung clock cap cho GPIOA
+											
+GPIOA->CRL &= ~GPIO_CRL_MODE0_0; 	//MODE = 00: Intput mode.
+GPIOA->CRL &= ~GPIO_CRL_MODE0_1; 
+GPIOA->CRL |= GPIO_CRL_CNF0_1;	 //CNF = 10: Input with pull-up / pull-down
+GPIOA->CRL &= ~GPIO_CRL_CNF0_0;	       
+GPIOA->ODR |= GPIO_ODR_ODR0;
+```
 
+Do cấu hình cho chân PA0 nên sẽ là CRL, MODE = 00, CNF = 10, ODR = 1 (pull-up). Thanh ghi ODR là để điều khiển xuất dữ liệu ra thanh ghi đó.
+
+**Đọc trạng thái nhấn nút**
+
+Thanh ghi Input Data Register (IDR):
+- Nhận mức tín hiệu tại chân của Port.
+- Giá trị nút nhấn tại PA0 = bit IDR0 của PortA.
+
+```c
+if( ( GPIOA->IDR & (1<<0) ) == 0 ){
+     while((GPIOA->IDR & (1<<0)) == 0);
+     // Do something.
+
+     }
+```
+
+Đầu tiên nếu nhấn nút thì GPIOA->IDR sẽ bằng 0 sẽ chạy vào trong phần câu điều kiện, còn vòng lặp while để đến khi nào thả nút nhấn đó ra thì mới thực hiện câu lệnh mong muốn để tránh trường hợp thực hiện câu lệnh nhiều lần.
 
 </details>
 
