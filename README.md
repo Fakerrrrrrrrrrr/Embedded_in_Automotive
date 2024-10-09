@@ -182,3 +182,76 @@ if( ( GPIOA->IDR & (1<<0) ) == 0 ){
 </details>
 
 </details>
+
+
+# Bài 2: GPIO
+
+<details>
+<summary> Details </summary>
+
+
+</details>
+
+# Bài 3: Interrupt - Timer
+
+<details>
+<summary> Details </summary>
+
+
+</details>
+
+# Bài 4: Các chuẩn giao tiếp cơ bản
+
+<details>
+<summary> Details </summary>
+
+
+</details>
+
+# Bài 5: SPI Software & Hardware
+
+<details>
+<summary> Details </summary>
+
+
+</details>
+
+# Bài 6: I2C Software & I2C Hardware
+
+<details>
+<summary> Details </summary>
+
+
+</details>
+
+# Bài 7: UART Software & Hardware
+
+<details>
+<summary> Details </summary>
+
+
+</details>
+
+# Bài 8: Interrupt
+
+<details>
+<summary> Details </summary>
+
+
+</details>
+
+# Bài 9: ADC
+
+<details>
+<summary> Details </summary>
+
+
+</details>
+
+# Bài 10: DMA
+
+<details>
+<summary> Details </summary>
+
+
+</details>
