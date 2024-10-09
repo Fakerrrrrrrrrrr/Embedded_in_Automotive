@@ -189,6 +189,21 @@ if( ( GPIOA->IDR & (1<<0) ) == 0 ){
 <details>
 <summary> Details </summary>
 
+## 1. Thư viện STM32F10x Standard Peripherals Firmware Library
+
+<details>
+<summary> Details </summary>
+
+Thư viện STM32F10x là thư viện được phát triển cho dòng STM32. Đầy đủ driver cho tất cả các ngoại vi tiêu chuẩn. Thư viện này bao gồm các hàm, cấu trúc dữ liệu và marco được define từ trước để giúp việc cấu hình các ngoại vi đơn giản hơn mà không cần phải vào tới từng thanh ghi đọc các document để xem thanh ghi đó có chức năng gì.
+
+Các bước cấu hình ngoại vi (GPIO)
+
+**Cấp clock cho ngoại vi** (RCC) -> **Cấu hình ngoại vi** (CRH-CRL) -> **Sử dụng ngoại vi** (ODR-IDR)
+
+Cấp xung clock cho GPIO: Sử dụng các API được cung cấp sẵn cho từng Bus. Các ngoại vi trên Bus được cấp xung thông qua việc truyền các tham số vào API. Vì sử dụng led PC13 nên cấp xung cho GPIOC qua Bus APB2.
+
+
+</details>
 
 </details>
 
