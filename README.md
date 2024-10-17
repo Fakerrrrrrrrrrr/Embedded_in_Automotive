@@ -217,9 +217,25 @@ void RCC_Config(void){
 }
 ```
 
-**Cấu hình ngoại vi**: Để cấu hình cho GPIO ta dùng Struct GPIO_InitTypeDef, cụm từ InitTypeDef sẽ dùng chung để cấu hình cho SPI,GPIO,... để cấu hình cho nó với struct có các biến thành viên khác nhau (cũng có thể hiểu là khởi tại kiểu mặc định).
+**Cấu hình ngoại vi**: Để cấu hình cho GPIO ta dùng Struct GPIO_InitTypeDef, cụm từ InitTypeDef sẽ dùng chung để cấu hình cho SPI,GPIO,... để cấu hình cho nó với struct có các biến thành viên khác nhau (cũng có thể hiểu là khởi tại kiểu mặc định).<br>
+Ở đây GPIO_InitTypeDef sẽ chứa các biến thành viên như là GPIO_Pin (Chọn Pin), GPIO_Mode (Chọn Mode), GPIO_Speed (Tốc độ đáp ứng).
 ```
+void GPIO_config(){
+	GPIO_InitTypeDef GPIO_InitStruct;
+	
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_13;			//Nếu muốn dùng nhiều chân thì sử dụng toán tử OR(|) để thiết lập nhiều chân ví dụ "GPIO_Pin_13| GPIO_Pin_14| GPIO_Pin_15" lưu ý nó phải cùng chế độ và trên GPIOC, nếu muốn dùng GPIOA thì ghi đè struct tạo ra.
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+	
+	GPIO_Init(GPIOC, &GPIO_InitStruct);
 
+	//PA13
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_13;
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_10MHz;
+
+	GPIO_Init(GPIOA, &GPIO_InitStruct);
+}
 ```
 
 
