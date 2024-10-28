@@ -306,3 +306,28 @@ void GPIO_config(){
 
 
 </details>
+
+# Bài 11: Flash và Bootloader
+
+<details>
+<summary> Details </summary>
+
+## 1. Bộ nhớ trong vi điều khiển
+
+<details>
+<summary> Details </summary>
+
+### 1. Bộ nhớ RAM (Random Access Memory)
+
+**Đặc điểm**: 
+- Tốc độ đọc/ghi nhanh.
+- Dữ liệu bị mất khi ngưng cấp nguồn.
+
+
+
+### 2. Bộ nhớ Flash
+### 3. Bộ nhớ EPROM
+
+</details>
+
+</details>
