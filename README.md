@@ -373,7 +373,7 @@ void GPIO_config(){
 ## 2. FLASH
 
 <details>
-<summary> Details </summary>3
+<summary> Details </summary>
 
 **Tính chất**:
 - Trên STM32F1 không có EPROM mà chỉ được cung cấp sẵn 128/64Kb Flash.
@@ -393,11 +393,11 @@ void GPIO_config(){
 
 Mỗi lần ghi 2bytes hoặc 4bytes, tuy nhiên mỗi lần xóa phải xóa cả Page.
 Sơ đồ xóa FLash như hình:
-- Đầu tiên, kiểm tra cờ LOCK của Flash, nếu Cờ này đang được bật, Flash đang ở chế độ Lock và cần phải được Unlock trước khi sử dụng.
-- Sau khi FLash đã Unlock, cờ CR_PER được set lên 1.
-- Địa chỉ của Page cần xóa được ghi vào FAR.
+- Đầu tiên, kiểm tra cờ LOCK của Flash, nếu Cờ này đang được bật, Flash đang ở chế độ Lock và cần phải được Unlock trước khi sử dụng. (Cơ chế bảo mật để người dùng không thể truy cấp random vào khi Lock) (Perform unlock sequence: Thực hiện chuỗi mở khóa)
+- Sau khi FLash đã Unlock, cờ CR_PER được set lên 1. (PER viết tắt của Page Erase) (Enable)
+- Địa chỉ của Page cần xóa được ghi vào FAR. (Ở mỗi Page đều có địa chỉ riêng, chỉ cần truyền địa chỉ vào FAR để xóa. Ghi vào thanh ghi AR: Address Register địa chỉ cần phải xóa.)
 - Set bit CR_STRT lên 1 để bắt đầu quá trình xóa.
-- Kiểm tra cờ BSY đợi hoàn tất quá trình xóa.
+- Kiểm tra cờ BSY đợi hoàn tất quá trình xóa. (Cờ busy được viết trên thanh ghi SR:Status Register)
 
 </details>
 
