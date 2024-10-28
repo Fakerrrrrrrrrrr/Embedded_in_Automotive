@@ -387,7 +387,9 @@ void GPIO_config(){
 - Vùng nhớ chứa chương trình hệ thống sẽ từ 0x0000 0000 -> 0x0800 0000. Vùng nhớ chứa chương trình người dùng nạp sẽ từ 0x0800 0000 -> 0x0800 0600. Và từ 0x0800 0600 -> 0x0801 FFFF sẽ là vùng nhớ trống.
 - Vùng nhớ phía sau từ 0x0800 0000 sẽ là trống và người dùng có thể lưu trữ dữ liệu ở vùng này.
 - Thư viện Std cung cấp hàm để giao tiếp với Flash trong Module Flash. File "stm32f10x_flash.h".
-- 
+
+**Xóa Page**:
+![FlashMemoryPageErase](https://github.com/Fakerrrrrrrrrrr/Embedded_in_Automotive/blob/main/Images/XoaPageFlash.png)
 
 </details>
 
