@@ -391,6 +391,14 @@ void GPIO_config(){
 **Xóa Page**:
 ![FlashMemoryPageErase](https://github.com/Fakerrrrrrrrrrr/Embedded_in_Automotive/blob/main/Images/XoaPageFlash.png)
 
+Mỗi lần ghi 2bytes hoặc 4bytes, tuy nhiên mỗi lần xóa phải xóa cả Page.
+Sơ đồ xóa FLash như hình:
+- Đầu tiên, kiểm tra cờ LOCK của Flash, nếu Cờ này đang được bật, Flash đang ở chế độ Lock và cần phải được Unlock trước khi sử dụng.
+- Sau khi FLash đã Unlock, cờ CR_PER được set lên 1.
+- Địa chỉ của Page cần xóa được ghi vào FAR.
+- Set bit CR_STRT lên 1 để bắt đầu quá trình xóa.
+- Kiểm tra cờ BSY đợi hoàn tất quá trình xóa.
+
 </details>
 
 </details>
