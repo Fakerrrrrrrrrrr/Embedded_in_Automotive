@@ -319,14 +319,75 @@ void GPIO_config(){
 
 ### 1. Bộ nhớ RAM (Random Access Memory)
 
+**Định nghĩa**: RAM là loại bộ nhớ tạm thời, cho phép truy cập ngẫu nhiên, tức là bất kỳ ô nhớ nào cũng có thể được truy cập trực tiếp mà không cần phải truy cập qua các ô khác.
+
 **Đặc điểm**: 
 - Tốc độ đọc/ghi nhanh.
 - Dữ liệu bị mất khi ngưng cấp nguồn.
 
+**Chức năng**: 
+- Sử dụng để lưu trữ dữ liệu và chương trình mà CPU đang sử dụng tại thời điểm đó.
 
+**Phân loại**:
+- DRAM (Dynamic RAM): Cần phải được làm tươi (refresh) liên tục.
+- SRAM (Static RAM): Nhanh hơn DRAM và không cần làm tươi, thường được sử dụng cho cache.
 
 ### 2. Bộ nhớ Flash
+
+**Định nghĩa**: Flash là một loại bộ nhớ không bay hơi, cho phép ghi và xóa dữ liệu theo khối.
+
+**Đặc điểm**: 
+- Tốc độ ghi chậm.
+- Tốc độ đọc nhanh.
+- Dữ liệu không bị mất khi ngưng cấp điện.
+- Giới hạn số lần xóa/ ghi.
+- Chỉ có thể ghi theo khối 2/4 byte.
+
+**Chức năng**: 
+- Thường được sử dụng trong các thiết bị lưu trữ như USB flash drives, thẻ nhớ, và ổ SSD.
+
+**Phân loại**:
+- NAND Flash: Thường được sử dụng cho lưu trữ dữ liệu.
+- NOR Flash: Thường được sử dụng cho firmware.
+
 ### 3. Bộ nhớ EPROM
+
+**Định nghĩa**: EPROM là loại bộ nhớ không bay hơi, có thể được lập trình và xóa bằng tia cực tím.
+
+**Đặc điểm**: 
+- Tốc độ ghi chậm.
+- Tốc độ đọc nhanh.(Nhanh hơn EPROM nhưng chậm hơn RAM.)
+- Dữ liệu không bị mất khi ngưng cấp điện.
+- Giới hạn số lần xóa/ ghi.
+- Chỉ có thể đọc/ghi theo từng byte.
+
+**Chức năng**: 
+- Thường được sử dụng để lưu trữ firmware hoặc các chương trình không thay đổi thường xuyên.
+
+**Phân loại**:
+- EPROM: Có thể xóa bằng tia UV.
+- EEPROM (Electrically Erasable Programmable Read-Only Memory): Có thể xóa bằng điện và cho phép sửa đổi dữ liệu từng byte.
+
+</details>
+
+## 2. FLASH
+
+<details>
+<summary> Details </summary>3
+
+**Tính chất**:
+- Trên STM32F1 không có EPROM mà chỉ được cung cấp sẵn 128/64Kb Flash.
+- Được chia nhỏ thành các Page. mỗi Page có kích thước 1Kb. Tương đương với (Page 0 đến Page 127)/(Page 0 đến Page 63).
+- Flash có giới hạn về số lần xóa/ghi.
+- Trước khi ghi phải xóa Flash trước. Ta sẽ đưa các dữ liệu về 0xFF. Khi xóa chỉ xóa 1 Page, không thể xóa 2 Byte hoặc 4 Byte sau đó ghi dữ liệu theo khối 2/4 Byte.
+- Thường được dùng để lưu chương trình. Lưu cho firmware.
+- Không mất dữ liệu khi mất nguồn, có cơ chế Lock bảo vệ dữ liệu an toàn khi mất nguồn.
+
+**Vùng nhớ**:
+- Vùng nhớ chứa chương trình hệ thống sẽ từ 0x0000 0000 -> 0x0800 0000. Vùng nhớ chứa chương trình người dùng nạp sẽ từ 0x0800 0000 -> 0x0800 0600. Và từ 0x0800 0600 -> 0x0801 FFFF sẽ là vùng nhớ trống.
+- Vùng nhớ phía sau từ 0x0800 0000 sẽ là trống và người dùng có thể lưu trữ dữ liệu ở vùng này.
+- Thư viện Std cung cấp hàm để giao tiếp với Flash trong Module Flash. File "stm32f10x_flash.h".
+- 
 
 </details>
 
