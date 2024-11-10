@@ -409,5 +409,30 @@ Sơ đồ xóa FLash như hình:
 <details>
 <summary> Details </summary>
 
+## 1. Khái niệm
+
+<details>
+<summary> Details </summary>
+
+Controller Area Network (CAN) là giao thức giao tiếp **nối tiếp** hỗ trợ mạnh cho những hệ thống điều khiển **thời gian thực phân bố** (distrubuted realtime control system).<br>
+CAN đặc biệt được ứng dụng nhiều trong ngành công nghiệp Ô tô.
+
+Ví dụ: Hệ thống túi khí thì độ trễ cho phép là 1ms, 2ms,... Thì hệ thống này đòi hỏi thời gian thực cao sẽ sử dụng CAN. 1 hệ thống va chạm nó sẽ gửi tín hiệu qua đường CAN BUS những phần liên quan thì nó sẽ xử lý.
+
+</details>
+
+## 2. Mạng CAN
+
+<details>
+<summary> Details </summary>
+	
+![Network](https://github.com/Fakerrrrrrrrrrr/Embedded_in_Automotive/blob/main/Images/CANNetwork.png)
+
+CAN có đường dây dẫn đơn giản gồm 2 dây CAN_H và CAN_L, tạo thành 1 Bus, các thiết bị được nối chung trên 2 dây này và gọi là node trong mạng. Ở cuối mỗi đường dây sẽ có 2 con điện trở 120Ω<br>
+Sự truyền dữ liệu thực hiện nhờ tính toán vi sai trên cặp dây truyền tín hiệu, có nghĩa là chúng đo sự chênh lệch điện áp giữa CAN_H và CAN_L.
+
+
+
+</details>
 
 </details>
