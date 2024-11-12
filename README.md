@@ -436,3 +436,13 @@ Sự truyền dữ liệu thực hiện nhờ tính toán vi sai trên cặp dâ
 </details>
 
 </details>
+
+
+# Bài 14: LIN
+
+<details>
+<summary> Details </summary>
+
+
+
+</details>
