@@ -446,3 +446,46 @@ Sự truyền dữ liệu thực hiện nhờ tính toán vi sai trên cặp dâ
 
 
 </details>
+
+# Bài 15: AUTOSAR Classic
+
+<details>
+<summary> Details </summary>
+
+1. Định nghĩa
+
+AUTOSAR Classic là Lập trình theo 1 frame, form nhất định, những hàm Init liên quan đến ngoại vi, config các phần RCC, GPIO, TIM, SPI, CAN, UART bằng những hàm riêng lẻ, truyền CAN hoặc gọi ra cảm biến sẽ được viết thành những hàm và những hàm đó sẽ được chạy bên trong 1 vòng lặp while ở trong hàm main.
+
+```c
+#include "stm32f10x.h"
+
+void RCC_Config();	//
+void GPIO_Config();	//
+void TIM_Config();	//  Hàm Init
+void SPI_Config();	//
+void CAN_Config();	//
+void UART_Config();	//
+void CAN_Transmit(uint8_t *data, uint8_t length);
+void Sensor_Init();
+uint32_t Sensor_Read();
+uint32_t Calculate_Data(uint32_t data);
+
+void main(){
+	while(1){
+		//do something
+	}
+}
+```
+Code như trên không phù hợp vì nó rất dài, rất khó để chỉnh sửa hoặc mở rộng các tính năng vậy nên nó không phù hợp để tạo ra 1 ứng dụng nhất là đối với trong lập trình automotive, các hệ thống trong xe hơi.
+
+ECU là đơn vị phần cứng
+
+
+
+</details>
+
+
+
+
+
+
