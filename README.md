@@ -218,7 +218,8 @@ void RCC_Config(void){
 ```
 
 **Cấu hình ngoại vi**: Để cấu hình cho GPIO ta dùng Struct GPIO_InitTypeDef, cụm từ InitTypeDef sẽ dùng chung để cấu hình cho SPI,GPIO,... để cấu hình cho nó với struct có các biến thành viên khác nhau (cũng có thể hiểu là khởi tại kiểu mặc định).<br>
-Ở đây GPIO_InitTypeDef sẽ chứa các biến thành viên như là GPIO_Pin (Chọn Pin), GPIO_Mode (Chọn Mode), GPIO_Speed (Tốc độ đáp ứng).
+Ở đây GPIO_InitTypeDef sẽ chứa các biến thành viên như là GPIO_Pin (Chọn Pin), GPIO_Mode (Chọn Mode), GPIO_Speed (Tốc độ đáp ứng).<br>
+Ngoài ra thì ta có thể ghi đè biến GPIO_InitStruct nếu có cấu hình các chân tương tự, những gì liên quan đến GPIO sẽ được đưa vào 1 hàm GPIO_config. Tương tự với các ngoại vi khác đều được code như bên dưới.
 ```
 void GPIO_config(){
 	GPIO_InitTypeDef GPIO_InitStruct;
@@ -238,6 +239,90 @@ void GPIO_config(){
 }
 ```
 
+**Sử dụng GPIO**:Khi vào {}Function ở stm32f10x_gpio.c thì sẽ có các hàm để sử dụng ngoại vi.<br>
+Sau đây là các hàm thông dụng:
+```
+//Đọc tín hiệu trên 1 chân trong GPIO được cấu hình là INPUT(ngỏ vào) tương ứng 1 bit: Tham số sẽ là GPIO với chân GPIO đó
+uint8_t GPIO_ReadInputDataBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
+//Đọc tín hiệu trên 16 chân trong GPIO được cấu hình là INPUT(ngỏ vào) tương ứng 16 bit: Tham số sẽ là GPIO
+uint16_t GPIO_ReadInputData(GPIO_TypeDef* GPIOx);
+//Đọc tín hiệu trên 1 chân trong GPIO được cấu hình là OUTPUT(ngỏ ra) tương ứng với 1 bit: Tham số sẽ là GPIO với chân GPIO đó
+uint8_t GPIO_ReadOutputDataBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
+//Đọc tín hiệu trên 16 chân trong GPIO được cấu hình là OUTPUT(ngỏ ra) tương ứng 16 bit: Tham số sẽ là GPIO
+uint16_t GPIO_ReadOutputData(GPIO_TypeDef* GPIOx);
+//Đặt 1 số chân trên GPIO về mức 1 có thể chọn nhiều chân bằng phép OR: Tham số sẽ là GPIO với chân GPIO đó
+void GPIO_SetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);//0b0000….0010
+//Đặt 1 số chân trên GPIO về mức 0 có thể chọn nhiều chân bằng phép OR: Tham số sẽ là GPIO với chân GPIO đó
+void GPIO_ResetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
+//Hàm này cho phép ghi giá trị tùy ý lên 1 chân tương ứng 1 bit
+void GPIO_WriteBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, BitAction BitVal);
+//Hàm này cho phép ghi giá trị tùy ý lên 16 chân tương ứng 16 bit
+void GPIO_Write(GPIO_TypeDef* GPIOx, uint16_t PortVal);
+```
+Sử dụng hàm SetBits và ResetBits để tạo hàm blink led như bài trước.
+```
+while(1){
+	GPIO_SetBits(GPIOC, GPIO_Pin_13); // Ghi 1 ra PC13
+	delay(10000000);
+	GPIO_ResetBits(GPIOC, GPIO_Pin_13);// Ghi 0 ra PC13
+	delay(10000000);
+}
+```
+Thêm 1 số ví dụ về nháy đuổi led, sẽ cấu hình cho chân 5 đến chân 8 của GPIOC. Nhìn thấy cùng chế độ với GPIO_Pin_13 nên ta có thể dùng phép OR cho tất cả các Pin.
+```
+GPIO_InitTypeDef GPIO_InitStructure;
+GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7|GPIO_Pin_8;
+GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	
+GPIO_Init(GPIOC, &GPIO_InitStructure);
+```
+Hàm nháy đuổi sử dụng hàm GPIO_Write ghi cùng lúc 16 chân, loop là số lần nháy đuổi, biến Ledval để điều khiển, mỗi lần nháy đuổi thì sẽ đặt giá trị là 1 tại vị trí GPIO4 và mỗi lần lặp thì sẽ dịch sang 1 bit GPIO5->GPIO6->GPIO7->GPIO8 mỗi lần led sẽ sáng 1 chân.
+```
+void chaseLed(uint8_t loop){
+	uint16_t Ledval;
+	for(int j=0; j<loop; j++ ){
+		Ledval = 0x0010;
+		for(int i =0; i<4; i++)
+		{
+			Ledval = Ledval<<1;
+			GPIO_Write(GPIOC, Ledval);
+			delay(10000000);
+		}
+	}
+}
+int main(){
+	while(1){
+		chaseLed(3);
+		break;
+	}
+}
+```
+Nếu quá nhanh thì delay không đủ, phần sau học về Timer sẽ chuẩn hơn.<br>
+
+**Đọc trạng thái nút nhấn**: Tương tự thì ta đọc trạng thái nút nhấn dựa trên các hàm. Cấu hình 1 phân GPIOA vì chân cần sử dụng ở đây là PA0 nhận tín hiệu đầu vào (INPUT).
+```
+GPIO_InitTypeDef GPIO_InitStructure;
+GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
+GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+
+GPIO_Init(GPIOA, &GPIO_InitStructure);
+```
+Kiểm tra xem PA0 có đang bằng không hay không bằng cách dùng GPIO_ReadInputDataBit so sánh với 0 hoặc Bit_RESET.
+```
+if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==0)
+	{
+		while(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==0);
+		//do something
+		if(GPIO_ReadOutputDataBit(GPIOC, GPIO_Pin_13)){
+			GPIO_ResetBits(GPIOC, GPIO_Pin_13);
+		} else {
+			GPIO_SetBits(GPIOC, GPIO_Pin_13);
+	}
+}
+
+```
 
 </details>
 
