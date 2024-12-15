@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/e8c4a84e-2e8b-4b7a-92df-9a5e0aafaaf6)# Bài 1: Setup project đầu tiên trên keilC
+# Bài 1: Setup project đầu tiên trên keilC
 
 <details>
 <summary> Details </summary>
