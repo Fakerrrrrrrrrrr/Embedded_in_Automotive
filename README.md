@@ -1,4 +1,4 @@
-# Bài 1: Setup project đầu tiên trên keilC
+![image](https://github.com/user-attachments/assets/e8c4a84e-2e8b-4b7a-92df-9a5e0aafaaf6)# Bài 1: Setup project đầu tiên trên keilC
 
 <details>
 <summary> Details </summary>
@@ -332,6 +332,24 @@ if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==0)
 
 <details>
 <summary> Details </summary>
+
+## 1. Ngắt:
+Ngắt là 1 sự kiện khẩn cấp xảy ra trong hay ngoài vi điều khiển. Nó yêu cầu MCU phải dừng chương trình chính và thực thi chương trình ngắt.<br>
+Trong hàm main sẽ có 1 vòng lặp while(1), khi không có gì xảy ra thì nó sẽ chạy ở trong while(1) nếu có sự kiện khẩn cấp xảy ra thì chương trình trong main sẽ lập tức dừng lại và chuyển tới thực hiện một chương trình ngắt sau khi xử lý xong nó sẽ quay lại chỗ được tạm dừng ở chương trình chính để thực hiện tiếp tục đoạn code. <br>
+Ví dụ như trên chiếc xe hơi thì chương trình chính là chương trình khi xe hoạt động bình thường khi mình lái, nghe nhạc,... ví dụ trên đầu xe có cảm biến va chạm, mà xe sắp tông vào cột điện thì cảm biến va chạm nó sẽ báo cho con vi điều khiển biết xe sắp va chạm nên tạo ra 1 ngắt, thực hiện cho xe ngừng hoạt động hoặc phanh gấp or đảo lái, hoặc bung túi khí,... khi xe dừng hẳn mà cảm biến không báo nguy hiểm nữa thì xe lại chạy hoạt động lại bình thường. Hoặc khi chơi game chương trình chính window đang chạy mà nó nhận thấy nhiệt độ đang lên cao ngoài mức cho phép thì máy tính sẽ tự động tắt nguồn.<br>
+
+Các loại ngắt thông dụng:<br>
+
+Mỗi ngắt có 1 trình phục vụ ngắt, sẽ yêu cầu MCU thực thi lệnh tại trình phục vụ ngắt khi có ngắt xảy ra.<br>
+Các ngắt có các địa chỉ cố định trong bộ nhớ để giữ các trình phục vụ. Các địa chỉ này gọi là vector ngắt.
+
+|Ngắt|Cờ ngắt|Địa chỉ trình phục vụ ngắt| Độ ưu tiên ngắt|
+|------|-------|--------------------------|----------------|
+|Reset|-|000h|-|
+|Ngắt ngoài|IE0|0003h|Lập trình được|
+|Timer1|TF1|001Bh|Lập trình được|
+|Ngắt truyền thông| | | |
+
 
 
 </details>
