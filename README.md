@@ -404,6 +404,8 @@ Trạng thái chương trình sẽ được lưu toàn bộ ở trong 1 stack ri
 
 Nếu 1 ngắt có độ ưu tiên thấp hơn xảy ra trong quá trình thực hiện chương trình ngắt có độ ưu tiên cao hơn thì chương trình ngắt đó sẽ không thực hiện ngay mà nó sẽ vào trạng thái chờ (Pending) (Queue) để xử lý lần lượt hoặc nếu cài đặt cho MCU bỏ qua luôn thì nó sẽ bỏ qua luôn.
 
+Trên là 3 ngắt chính còn về ngắt reset liên quan đến phần Boot của MCU chưa có học nên bỏ qua.
+
 </details>
 
 # Bài 4: Các chuẩn giao tiếp cơ bản
