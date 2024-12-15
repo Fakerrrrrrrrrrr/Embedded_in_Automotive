@@ -340,7 +340,7 @@ Ví dụ như trên chiếc xe hơi thì chương trình chính là chương tr�
 
 Các loại ngắt thông dụng:<br>
 
-Mỗi ngắt có 1 trình phục vụ ngắt, sẽ yêu cầu MCU thực thi lệnh tại trình phục vụ ngắt khi có ngắt xảy ra.<br>
+Mỗi ngắt có 1 trình phục vụ ngắt, sẽ yêu cầu MCU thực thi lệnh tại trình phục vụ ngắt khi có ngắt xảy ra.(Thì nó là 1 hàm cố định bất cứ khi nào có ngắt tương ứng với hàm đó thì tự động gọi nó ra)<br>
 Các ngắt có các địa chỉ cố định trong bộ nhớ để giữ các trình phục vụ. Các địa chỉ này gọi là vector ngắt.
 
 |Ngắt|Cờ ngắt|Địa chỉ trình phục vụ ngắt| Độ ưu tiên ngắt|
@@ -350,6 +350,15 @@ Các ngắt có các địa chỉ cố định trong bộ nhớ để giữ các
 |Timer1|TF1|001Bh|Lập trình được|
 |Ngắt truyền thông| | | |
 
+Địa chỉ trình phục vụ ngắt (vector ngắt) chỉ là ví dụ, còn cờ ngắt đó là các bit ngắt, flag ngắt.
+
+Ngắt reset xảy ra khi ta nhấn nút reset trên con vi điều khiển, hoặc rút nguồn điện sau đó cắm điện lại nó sẽ chạy chương trình lại từ đầu.<br>
+
+Để nắm được cách hoạt động khi chương trình có ngắt thì phải biết tới Program Counter (Thanh ghi PC) thanh ghi này luôn chỉ đến lệnh tiếp theo trong chương trình. Khi chương trình nạp vào con stm32 thì từng cái lệnh hợp ngữ sẽ lưu vào từng ô nhớ vào bộ nhớ Flash của con stm32.<br>
+Khi mà CPU đọc lệnh chạy thì thanh ghi PC nó sẽ trỏ vào vị trí đầu tiên (khi khởi động lên) 0xC1 rồi hàm main sẽ đi được bao nhiêu dòng code thì thanh ghi PC nó sẽ thực hiện các lệnh hợp ngữ tiếp theo ở trong vòng while(1) thì lặp lại vòng lặp mới 0xC1. Có các chương trình ngắt khác như là ngắt ngoài có vector ngắt địa chỉ sẽ được lưu tại 0xB5-B9 và 1 chương trình khác thì là 0xD3-0xD7.<br>
+Ví dụ ở 0xC2 xảy ra ngắt thì CPU biết khi có ngắt xảy ra thì tạm dừng chương trình chính lại để chạy chương trình ngắt nhận diện được đây là ngắt và có vector 0xB5-B9 thì nó tạm thời đưa PC của nó tới 0xB5 sau khi chạy xong lệnh 0xC2 thì PC sẽ trỏ tới lệnh tiếp theo 0xB6 và thực hiện 0xB5 cứ thế chạy đến 0xB9 thì PC sẽ trỏ tới 0xC3 và chương trình lại tiếp tục ngay tại vị trí 0xC3 rồi chạy lại bình thường.<br>
+
+### 1.1 Ngắt ngoài:
 
 
 </details>
