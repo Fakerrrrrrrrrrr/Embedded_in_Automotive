@@ -354,11 +354,51 @@ Các ngắt có các địa chỉ cố định trong bộ nhớ để giữ các
 
 Ngắt reset xảy ra khi ta nhấn nút reset trên con vi điều khiển, hoặc rút nguồn điện sau đó cắm điện lại nó sẽ chạy chương trình lại từ đầu.<br>
 
+![ProgramCounter](https://github.com/Fakerrrrrrrrrrr/Embedded_in_Automotive/blob/main/Images/Interrupt_PC.png)
+
 Để nắm được cách hoạt động khi chương trình có ngắt thì phải biết tới Program Counter (Thanh ghi PC) thanh ghi này luôn chỉ đến lệnh tiếp theo trong chương trình. Khi chương trình nạp vào con stm32 thì từng cái lệnh hợp ngữ sẽ lưu vào từng ô nhớ vào bộ nhớ Flash của con stm32.<br>
 Khi mà CPU đọc lệnh chạy thì thanh ghi PC nó sẽ trỏ vào vị trí đầu tiên (khi khởi động lên) 0xC1 rồi hàm main sẽ đi được bao nhiêu dòng code thì thanh ghi PC nó sẽ thực hiện các lệnh hợp ngữ tiếp theo ở trong vòng while(1) thì lặp lại vòng lặp mới 0xC1. Có các chương trình ngắt khác như là ngắt ngoài có vector ngắt địa chỉ sẽ được lưu tại 0xB5-B9 và 1 chương trình khác thì là 0xD3-0xD7.<br>
 Ví dụ ở 0xC2 xảy ra ngắt thì CPU biết khi có ngắt xảy ra thì tạm dừng chương trình chính lại để chạy chương trình ngắt nhận diện được đây là ngắt và có vector 0xB5-B9 thì nó tạm thời đưa PC của nó tới 0xB5 sau khi chạy xong lệnh 0xC2 thì PC sẽ trỏ tới lệnh tiếp theo 0xB6 và thực hiện 0xB5 cứ thế chạy đến 0xB9 thì PC sẽ trỏ tới 0xC3 và chương trình lại tiếp tục ngay tại vị trí 0xC3 rồi chạy lại bình thường.<br>
 
 ### 1.1 Ngắt ngoài:
+
+![ExternalInterrupt](https://github.com/Fakerrrrrrrrrrr/Embedded_in_Automotive/blob/main/Images/External_Interrupt.png)
+
+Xảy ra khi có thay đổi điện áp trên các chân GPIO được cấu hình làm ngõ vào ngắt.<br>
+
+Ví dụ trên thì cấu hình cho chân GPIO làm ngõ ngắt ngoài, lắp 1 nút nhấn khi nhấn nút điện áp sẽ thay đổi trên chân GPIO đó thì nó sẽ sinh ra 1 ngắt ngoài. Và có 4 kiểu ngắt ngoài. Các ngắt sẽ sinh ra khi ở các trạng thái khác nhau.
+
+- LOW: kích hoạt ngắt liên tục khi chân ở mức thấp.
+- HIGH: Kích hoạt liên tục khi chân ở mức cao.
+- Rising: Kích hoạt khi trạng thái trên chân chuyển từ thấp lên cao.
+- Falling: Kích hoạt khi trạng thái trên chân chuyển từ cao xuống thấp.
+
+Thông thường chân sẽ có 2 giá trị là 1 và 0 tương ứng 3V3 và 0V
+
+### 1.2 Ngắt Timer:
+
+Ngắt Timer xảy ra khi trong thanh ghi đếm của timer tràn. Giá trị tràn được xác định bởi giá trị cụ thể trong thanh ghi đếm của timer. (Timer đơn giản là 1 bộ đếm, đếm lên hoặc đếm xuống sau khoảng thời gian nhất định ví dụ cấu hình sau mỗi 1ms thì nó sẽ đếm lên 1 thì thanh ghi đếm cứ sau 1ms sẽ tăng lên 1 đơn vị, thanh ghi đếm là thanh ghi đếm nhị phân, thanh ghi đếm tràn là khi giá trị nó đếm bằng với giá trị mình thiết lập cho nó (200 lần chẳng hạn) khi tràn thì sẽ tạo ra 1 ngắt Timer (Hàm ngắt cho Timer được gọi).
+
+Vì đây là ngắt nội trong MCU(nội trong con vi điều khiển) không phụ thuộc tín hiệu bên ngoài, nên phải reset giá trị thanh ghi timer để có thể tạo được ngắt tiếp theo. Ở ví dụ uint8_t thì sẽ đếm từ 0-255 thì nó mới reset thay vì 200 nếu nó không phải là uint8_t mà là uint16_t hoặc uint32_t thì nó sẽ đếm thêm gấp mấy lần mới reset rồi mới đếm tới giá trị 200, nên để tránh xảy ra sai sót thì ta nên reset giá trị của thanh ghi đếm về 0 sau mỗi lần ngắt.
+
+## 1.3 Ngắt truyền thông:
+
+![Communication_Interrupt](https://github.com/Fakerrrrrrrrrrr/Embedded_in_Automotive/blob/main/Images/Communication_Interrupt.png)
+
+Ngắt truyền thông xảy ra khi có sự kiện truyền/nhận dữ liệu giữa MCU với các thiết bị bên ngoài hay với MCU. Ngắt này sử dụng cho nhiều phương thức như Uart, SPI, I2C…v.v nhằm đảm bảo việc truyền nhận chính xác. Hầu như tất cả các giao thức hỗ trợ trên con stm32 đều có ngắt truyền thông, có nghĩa mỗi giao thức đều có ngắt riêng của nó.<Br>
+
+Ở ví dụ trên mình sẽ có 2 con vi điều khiển nối với nhau qua 1 giao thức là UART. Thì trong vi điều khiển không phải lúc nào cũng là truyền và nhận dữ liệu (truyền qua UART) thì trong chương trình còn các công việc khác để nó làm nữa ví dụ func1, func2,... và các hàm sẽ mất thời gian để nó thực hiện. Ở MCUA và MCUB đều có func1 nhưng ở MCUA lại mất 2s để thực hiện thay vì 1s ở MCUB thì hàm nhận sẽ gọi trước hàm truyền và thực hiện xong rồi thì MCUA mới truyền dữ liệu thì dữ liệu sẽ bị mất khi MCU thực hiện nhiều công việc nếu cùng thời gian thì vô tình nó sẽ đúng. Hoặc là chỉ nhận 0.5s dữ liệu thì cũng bị mất 0.5s dữ liệu. Nên để đảm bảo khi con MCUA truyền thì con MCUB nhận thì dùng ngắt truyền thông.
+
+Tạo ra 1 chương trình ngắt UART hoạt động khi MCUA truyền dữ liệu thì chương trình ở MCUB sẽ dừng và chuyển qua chương trình ngắt Timer, hành động này xảy ra rất là nhanh nên sẽ được coi là cùng lúc với lúc truyền dữ liệu bây giờ đơn giản ở hàm ngắt được gọi nó sẽ gọi hàm nhận.
+
+## 1.4 Độ ưu tiên ngắt:
+
+Độ ưu tiên ngắt là khác nhau ở các ngắt. Nó xác định ngắt nào được quyền thực thi khi nhiều ngắt xảy ra đồng thời.(Quyết định ngắt nào được thực hiện trước và ngắt nào được thực hiện sau)<br>
+STM32 quy định ngắt nào có số ưu tiên càng thấp thì có quyền càng cao. Các ưu tiên ngắt có thể lập trình được.
+
+Ví dụ trên xe ở vừa có cảm biến và chạm và vừa có cảm biến áp suất lốp. Xe đang chạy bị thủng lốp và trong lúc đó xe chuẩn bị đâm vào cột điện thì 2 cảm biến gửi cùng lúc 2 tín hiệu khẩn cấp, thì chiếc xe không biết thực hiện chương trình ngắt nào trước. Nên độ ưu tiên ngắt được sinh ra và được cài đật khác nhau ở các ngắt. Tùy thuộc vào độ khẩn cấp nào cao hơn thì sẽ cho nó độ ưu tiên cao hơn. Cái ngắt ưu tiên xử lý ngắt va chạm trước rồi mới thực hiện ngắt áp suất lốp, số ưu tiên thứ tự càng thấp thì quyền càng cao.<br>
+
+Nên nhớ là ngắt không phải 1 cái function gọi chung nó là 1 trình phụ ngắt. ví dụ chương trình chạy từ 0x01 tới 0x03 và nó đang chạy lệnh 0x03 thì xảy ra ngắt lúc này PC đang trỏ tới 0x04 của chương trình chính thì sẽ thay đổi sang 0xD4 thì sau khi chạy xong tới 0xE2 chẳng hạn, để chương trình đang thực hiện biết được vị trí mà nó dời đi thì sẽ có 1 khái niệm gọi là Stack Pointer (cấu trúc dữ liệu Stack bình thường) thì nó sẽ được dùng để lưu các giá trị (PC) (địa chỉ) hiện tại khi chương trình nhảy sang chương trình khác 
 
 
 </details>
