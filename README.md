@@ -381,7 +381,7 @@ Ngắt Timer xảy ra khi trong thanh ghi đếm của timer tràn. Giá trị t
 
 Vì đây là ngắt nội trong MCU(nội trong con vi điều khiển) không phụ thuộc tín hiệu bên ngoài, nên phải reset giá trị thanh ghi timer để có thể tạo được ngắt tiếp theo. Ở ví dụ uint8_t thì sẽ đếm từ 0-255 thì nó mới reset thay vì 200 nếu nó không phải là uint8_t mà là uint16_t hoặc uint32_t thì nó sẽ đếm thêm gấp mấy lần mới reset rồi mới đếm tới giá trị 200, nên để tránh xảy ra sai sót thì ta nên reset giá trị của thanh ghi đếm về 0 sau mỗi lần ngắt.
 
-## 1.3 Ngắt truyền thông:
+### 1.3 Ngắt truyền thông:
 
 ![Communication_Interrupt](https://github.com/Fakerrrrrrrrrrr/Embedded_in_Automotive/blob/main/Images/Communication_Interrupt.png)
 
@@ -391,7 +391,7 @@ Ngắt truyền thông xảy ra khi có sự kiện truyền/nhận dữ liệu 
 
 Tạo ra 1 chương trình ngắt UART hoạt động khi MCUA truyền dữ liệu thì chương trình ở MCUB sẽ dừng và chuyển qua chương trình ngắt Timer, hành động này xảy ra rất là nhanh nên sẽ được coi là cùng lúc với lúc truyền dữ liệu bây giờ đơn giản ở hàm ngắt được gọi nó sẽ gọi hàm nhận.
 
-## 1.4 Độ ưu tiên ngắt:
+### 1.4 Độ ưu tiên ngắt:
 
 Độ ưu tiên ngắt là khác nhau ở các ngắt. Nó xác định ngắt nào được quyền thực thi khi nhiều ngắt xảy ra đồng thời.(Quyết định ngắt nào được thực hiện trước và ngắt nào được thực hiện sau)<br>
 STM32 quy định ngắt nào có số ưu tiên càng thấp thì có quyền càng cao. Các ưu tiên ngắt có thể lập trình được.
@@ -405,6 +405,55 @@ Trạng thái chương trình sẽ được lưu toàn bộ ở trong 1 stack ri
 Nếu 1 ngắt có độ ưu tiên thấp hơn xảy ra trong quá trình thực hiện chương trình ngắt có độ ưu tiên cao hơn thì chương trình ngắt đó sẽ không thực hiện ngay mà nó sẽ vào trạng thái chờ (Pending) (Queue) để xử lý lần lượt hoặc nếu cài đặt cho MCU bỏ qua luôn thì nó sẽ bỏ qua luôn.
 
 Trên là 3 ngắt chính còn về ngắt reset liên quan đến phần Boot của MCU chưa có học nên bỏ qua.
+
+## 2. TIMER
+
+Có thể hiểu 1 cách đơn giản: timer là 1 mạch digital logic có vai trò đếm mỗi chu kỳ clock (đếm lên hoặc đếm xuống).
+Timer còn có thể hoạt động ở chế độ nhận xung clock từ các tín hiệu ngoài. Có thể là từ 1 nút nhấn, bộ đếm sẽ được tăng sau mỗi lần bấm nút (sườn lên hoặc sườn xuống tùy vào cấu hình) (cấu hình thêm). Ngoài ra còn các chế độ khác như PWM, định thời …vv.
+
+Timer thông thường sẽ nhận xung từ CPU, MCU hoặc nhận xung từ bên ngoài. Có thể nhận từ 1 nút nhấn để tính nó là 1 xung, cứ mỗi lần có xung thì bộ đếm sẽ đếm lên 1 lần tùy cách cài đặt nó sẽ nhận xung từ CPU hay là xung bên ngoài thì nó sẽ đếm theo kiểu khác nhau. Ngoài ra còn các chế độ khác như PWM điều khiển độ rộng xung, điều khiển motor, thiết bị cũng như là dùng để định thời gian, đo thời gian,...
+
+STM32F103 có 7 Timer nhưng có 4 Timer là sử dụng được thôi còn 3 Timer còn lại là của hệ thống 
+
+![TIMER](https://github.com/Fakerrrrrrrrrrr/Embedded_in_Automotive/blob/main/Images/Timer.png)
+
+Thì đây là bộ Timer hoạt động theo chu kỳ (period) nó không có set up giá trị tràn thì nó đếm tới 1 giá trị nhất định thì nó set up về 0 nên tạo ra 1 khoảng thời gian giống nhau.
+
+### 2.1 Cấu hình Timer
+
+Mở keilC tick vào Timer và RCC (Resolve). Timer là 1 ngoại vi giống với GPIO thì đầu tiên cần cấp clock. Struct TIM_TimeBaseInitTypeDef thì là time cơ bản, có các chế độ khác như là TIM_ICInitTypeDef, TIM_OCInitTypeDef,... học cơ bản nên chỉ cần TimeBaseInitTypeDef là được. Về Struct TimeBaseInitTypeDef sẽ có 5 biến thành viên về biến cuối cùng là TIM_RepetitionCounter thì bỏ qua vì nó là chế độ mở rộng chỉ sử dụng cho TIM1 và TIM8.<Br>
+Đầu tiên ClockDivision nếu không được cấu hình mà để giá trị mặc định của hệ thống nó sẽ được cấp là 72MHz(1 giây tạo ra được 72 triệu dao động). Thì ClockDivision cho phép chia nhỏ Clock của hệ thống và cấp cho Timer, chia nhỏ hơn để cấp cho Timer. Nó sẽ gồm chia 1,2 và 4.<br>
+Thứ hai Prescaler quyết định sau bao nhiêu xung clock sẽ đếm lên 1 lần (sau bao nhiêu dao động thì thanh ghi sẽ đếm lên 1 lần) //1 dao động tốn:1/72M giây, thì mỗi  1ms nó sẽ thực hiện bao nhiêu dao động. Prescaler tương trưng cho số dao động để đếm lên 1 lần Ví dụ 72 mà Clock là 72M thì 72 dao động sẽ tốn 1Microseconds.<br>
+Thứ ba là Period sao bao nhiêu giá trị đếm thì nó sẽ reset lại thanh ghi, với Timer cơ bản thì không cần Period này nên đặt giá trị max cho nó để nó tự động đếm, sau này hoc sử dụng ngắt mới dùng tới nó chỉ là uint16_t nên nó sẽ chứa giá trị từ 0x0000 tới 0xFFFF(65535) nên cần phải tính toán giá trị Division với giá trị Prescaler sao cho phù hợp.<br>
+Lưu ý thì do Timer đếm bắt đầu từ 0 nên sẽ trừ đi 1. Muốn nó đếm mỗi 1ms thì có thể chia 2 và gắn cho Prescaler là 3600-1. Còn Period thì 0xFFFF là số lớn nhất nó có thể chứa.<br>
+Cuối cùng là Mode là xác định Mode của counter, đếm lên hoặc đếm xuống (đếm từ giá trị Period xuống 0 và ngược lại), còn lại là 3 chế độ liên quan đến căn lề giữa các bit. (Tạm thời không sử dụng)
+
+```
+void RCC_Config(){
+   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+}
+void TIM_Config(){
+   TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
+
+   TIM_TimeBaseInitStruct.TIM_Prescaler = 7200-1;
+   TIM_TimeBaseInitStruct.TIM_Period = 0xFFFF;
+   TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
+   TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
+   TIM_TimeBaseInit(TIM2, &TIM_TimeBaseInitStruct);
+   TIM_Cmd(TIM2, ENABLE);
+}
+```
+
+Tương tự GPIO thì phải gọi hàm Init ra đầu tiên là loại TIMER và con trỏ của InitTypeDef. Gọi hàm TIM_Cmd để cho TIMER hoạt động. Với cài đặt thông số cho timer trên, cấu hình timer đếm lên với mỗi 0.1ms.<br>
+Vậy nên hàm delay_ms là chỉ cần lặp lại timedelay 10 lần sẽ được 1ms. Hàm TIM_SetCounter và hàm TIM_GetCounter, hàm setcounter cho phép set up các giá trị trong thanh ghi đếm (đếm từ 0), còn hàm getcounter là hàm cho phép đọc giá trị hiện tại trong thanh ghi đếm.
+
+```
+void delay_ms(uint8_t timedelay)
+{
+   TIM_SetCounter(TIM2,0);
+   while(TIM_GetCounter(TIM2)<timedelay*10){}
+}
+```
 
 </details>
 
