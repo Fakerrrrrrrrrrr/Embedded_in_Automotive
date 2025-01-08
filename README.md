@@ -641,12 +641,25 @@ Sự truyền dữ liệu thực hiện nhờ tính toán vi sai trên cặp dâ
 
 CAN chỉ có 1 BUS CAN và đường CAN BUS này sẽ có 2 dây là CAN_H và CAN_L ở cuối mỗi đường dây sẽ gồm 2 con điện trở 120 ôm thì 2 con điện trở này có nhiệm vụ là hấp thụ sóng phản xạ từ các Node gửi xuống, thì mỗi lần Node gửi tín hiệu xuống, thì tín hiệu sẽ đi theo 2 hướng tương ứng với đầu nối với đường dây nối với CAN BUS, nếu mà không có 2 con điện trở này thì nó sẽ có 1 sóng phản xạ ngược lại, sóng phản xạ này khiến cho tín hiệu của mình méo dạng hoặc bị sai lệch thông tin, vì không muốn có sóng phản xạ nào nên lắp cho đường CAN BUS ở 2 đầu 1 con tải 120 ôm, tại sao chúng ta phải sử dụng 120 ôm thì định điện trở tải phải bằng với thông số điện trở kháng đặc tính, điện trở kháng đặc tính Z0 nó sẽ được tính bằng 1 số thông số vật lý của dây CAN_H, CAN_L như vật liệu, đường kính đường dây, chiều dài đường dây, từ các thông số đó sẽ tính được điện trở kháng đặc tính và tải phải bằng với điện trở kháng đặc tính thì nó mới hấp thụ hoàn toàn sóng phản xạ bằng cách đo đạc 1 số thứ thì Z0 sẽ bằng 120 ôm, vì lý đó nên sử dụng điện trở 120 ôm cho 2 đầu tại vì truyền cho 2 đầu chứ không phải 1 đầu.
 
+## 3. Node CAN
+
 Hệ thống sẽ tương ứng với các Node và các Node sẽ có 3 phần gồm : MCU, CAN Controller, Transceiver
 - MCU: Vi điều khiển sẽ xử lý gửi dữ liệu, dữ liệu được xử lý như thế nào rồi các dữ liệu sẽ tương ứng với thông tin nào, xử lý thông tin được gửi đi hoặc nhận vào.
 - CAN Controller: Sẽ điều khiển quá trình hoạt động của CAN trong Node, nó sẽ giúp đẩy dữ liệu về MCU hoặc nhận dữ liệu về, xử lý lỗi
 - Transceiver: Bộ dịch từ tín hiệu các điện áp từ 0-3V3 thành những tín hiệu và CAN hiểu được (CAN_H, CAN_L) thì CAN_H và CAN_L không phải là từ 0 - 3V3 nên cần có bộ Transceiver, vậy thì làm cách nào để (CAN_H, CAN_L) biết là truyền bit 0 hay bit 1 thì nó sẽ dựa vào phương pháp tính toán vi sai giữa CAN_H và CAN_L, thì nó sẽ lấy điện áp của CAN_H trừ đi điện áp của CAN_L. Thì bình thường sẽ có 2 bit 0 và 1 ở đây sẽ có 2 trạng thái "dominant" và "recessive" tương ứng với mức 0 và 1. Nếu chênh lệch điện áp lớn (lớn hơn cỡ 3V) thì tín hiệu truyền đi sẽ là dominant còn nếu chênh lệch điện áp nhỏ cỡ 1.5V thì tín hiệu truyền đi sẽ là recessive tùy vào loại CAN sử dụng, thì CAN low speed thì là CAN cơ bản, còn CAN high speed như 2.0B, F.D thì chênh lệch điện áp nó sẽ khác, ví dụ CAN_H bằng CAN_L thì nó truyền là recessive còn nếu CAN_H lớn hơn CAN_L khoảng 2V thì sẽ truyền là dominant. Đó cách nó truyền dữ liệu là lấy vi sai lấy điện áp của CAN_H trừ đi điện áp của CAN_L. Tóm lại Transceiver sẽ dịch điện áp từ 0-3V3 sẽ dịch ra thành những mức chênh lệch vi sai CAN_H trừ CAN_L bao nhiêu đó sẽ đủ cho dominant bao nhiêu đó đủ cho recessive.
 
 Các Node sẽ mắc song song ví dụ chân Rx và Tx, thì các chân CAN_H nối với nhau và CAN_L nối với nhau tương tự như với I2C, các Node sẽ mắc song song với nhau, vậy nên khi 1 thằng nhận đi thì tất cả các thằng khác đều sẽ nhận được.
+
+## 4. Tính chất
+
+![Properties](https://github.com/Fakerrrrrrrrrrr/Embedded_in_Automotive/blob/main/Images/CANProperties.png)
+
+Ở trong CAN thì 2 đường dây CAN_H và CAN_L không thẳng 1 đường giống I2C, vì CAN là phương thức truyền dữ liệu tốc độ cao High Speed (thời gian thực) rất dễ bị nhiễu, rối, đọc sai tín hiệu (EMI tương ứng với nhiễu) cho nên nếu để 2 đường BUS thẳng thì nguồn nhiễu ảnh hưởng tới CAN_H nhiều hơn nguồn nhiễu của CAN_L, khi nhiễu thì làm cho tín hiệu không ổn định, ví dụ CAN_L ổn định mà CAN_H bị nhiễu thì CAN_H trừ cho CAN_L đôi lúc sẽ bị sai bởi High Speed rất dễ bị ảnh hưởng bởi nhiễu cho nên để như vậy thì mức vi sai sẽ sai, vậy chúng ta giải quyết bằng cách xoắn 2 sợi dây vào với nhau, nếu mà có nhiễu từ 1 phía thì lúc này do CAN_L và CAN_H xoắn lại với nhau, thì ở mỗi đường dây sẽ tiếp xúc với đường nhiễu như nhau (công suất nhiễu như nhau), ví dụ lấy CAN_H trừ CAN_L thì nhiễu sẽ bị triệt tiêu, thì đó là cách mà kết nối BUS CAN xoắn lại tiếp xúc với nguồn nhiễu là như nhau (triệt tiêu 1 phần thôi), nói chung thì đó là cách giảm thiểu tối đa so với 2 đường dây thẳng. Khi mô phỏng ở nhà đặt 2 module gần nhau cho nên chiều dài không đáng kể nên để 2 đường dây thẳng vẫn truyền được bình thường, trong ô tô đường dây dài, tính hiệu gửi đi chậm hơn và nhiễu nhiều hơn nên xoắn lại để nguồn nhiễu đều ở trên 2 đường dây.
+
+## 5. Nguyên tắc hoạt động
+
+
+
 
 
 </details>
