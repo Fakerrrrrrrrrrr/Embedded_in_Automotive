@@ -463,6 +463,8 @@ void delay_ms(uint8_t timedelay)
 <summary> Details </summary>
 
 
+
+
 </details>
 
 # Bài 5: SPI Software & Hardware
