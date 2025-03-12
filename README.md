@@ -709,7 +709,97 @@ void main(){
 ```
 Code như trên không phù hợp vì nó rất dài, rất khó để chỉnh sửa hoặc mở rộng các tính năng vậy nên nó không phù hợp để tạo ra 1 ứng dụng nhất là đối với trong lập trình automotive, các hệ thống trong xe hơi.
 
-ECU là đơn vị phần cứng
+ECU là đơn vị phần cứng, ví dụ MCU có gì, MCU điều khiển động cơ sẽ có 1 motor driver, gồm 1 cầu H (H-Bridge là một mạch điện được sử dụng để điều khiển động cơ DC hoặc động cơ bước, cầu H gồm 4 công tắc (có thể là transistor hoặc MOSFET) được sắp xếp theo cách mà dòng điện có thể chạy qua động cơ theo hai hướng khác nhau) qua H-Bridge mới chạy tới động cơ, và ở trong MCU sẽ có mạch nguồn power cấp điện cho MCU, H-Bridge và nối vào động cơ. Và 1 sẽ có thêm 1 khối CAN được điều khiển bởi MCU và nối với power, khối CAN sẽ có CAN-H và CAN-L truyền đi. Và 1 khối bao quát hết tất cả các MCU, CAN, H-Bridge và Power người ta gọi nó là ECU. Là một nhóm mạch điện tử thực hiện các chức năng cụ thể nào đó trong xe hơi của chúng ta. Ví dụ đọc áp suất lốp xe, điều khiển động cơ, điều khiển túi khí, phanh,... sẽ có từng ECU tương ứng điều khiển nó. Và ở automotive chúng ta sẽ code cho các ECU này. ECU là Electronic Control Unit. Nó là 1 đơn vị mạch điện tử trong xe hơi.
+
+Khi lập trình thì các ECU sẽ có nhiều các task khác nhau, ví dụ như ECU điều khiển động cơ thì điều khiển mô-mên xoắn là 1 task, điều khiển tốc độ động cơ là 1 task, Quản lý nhiệt động cơ là 1 task,... đó là những cái task mà ECU phải thực hiện thì nó hiện thực các task đồng thời chứ không phải lần lượt lần lượt, nói là đồng thời nhưng thực ra ở 1 thời điểm nào đó với 1 task thôi k làm việc đồng thời được bởi vì chỉ có 1 khối phần cứng, ví dụ cả 5 task đều sử dụng GPIO, ADC, PWM, CAN và Flash. Chỉ có 1 ở trong vi điều khiển thôi nên tại 1 thời điểm chỉ có 1 task truy cập tới phần cứng thôi. Trong một thời điểm nếu mà các task có sử dụng chung về phần cứng, sẽ bị xung đột phần cứng, phần cứng không phải thực hiện task nào, nên để tránh gây ra việc xung đột phần cứng thì sẽ lái task này thông qua 1 OS ở trong Automotive sẽ sử dụng 1 cái OS được gọi là RTOS để chúng ta có thể phân bổ thời gian các phần cứng làm được task giống như hình:
+
+->>>Hình ảnh
+
+Vì phải code theo từng task từng task 1 và phải thông qua một hệ điều hành để phân bổ thời gian sử dụng phần cứng nên chúng ta phải code theo 1 kiểu khác được gọi là Autosar.
+
+- Khái niệm:
+
+AUTOSAR (AUTomotive Open System ARchitecture) là một tiêu chuẩn quốc tế về kiến trúc phần mềm cho các hệ thống điện tử trong ô tô. AUTOSAR ra đời nhằm mục đích tiêu chuẩn hóa và chuẩn hóa kiến trúc phần mềm cho các hệ thống điều khiển nhúng trong ô tô.
+
+So sánh khi sử dụng AUTOSAR và không sử dụng AUTOSAR:
+
+- Không sử dụng AUTOSAR:
+
++ Thiếu sự đồng nhất giữa các task của ECU.
++ Khả năng tái sử dụng thấp.
++ Quản lý lỗi và bảo trì phức tạp.
++ Hệ thống thiếu linh hoạt, mở rộng và phát triển hệ thống khó khăn.
++ Làm việc nhóm khó khăn.
+
+- Có sử dụng AUTOSAR:
+
++ Có sẵn các tiêu chuẩn để dựa vào.
++ Khả năng tái sử dụng phần mềm cao với các dự án khác nhau.
++ Dễ dàng thay đổi để tương thích với các dòng MCU khác nhau.
++ Phần mềm và phần cứng được tách biệt với nhau.
++ Dễ quản lý và bảo trì phần mềm.
+
+Giải thích: AUTOSAR sẽ cho bạn 1 cái frame để lập trình những hàm, những kiểu dữ liệu, những file cho mình để chúng ta có thể làm được nhiều thứ. Nếu không sử dụng AUTOSAR thì mỗi task phải lập trình theo một kiểu. Ví dụ có 2 task ở trong hệ thống xe hơi là điều khiển động cơ nhưng mà ban đầu viết cho con STM32 còn project bên kia xài MCU của NXP, Renesas, TI thì đem code từ đầu qua thì không chạy được, quản lý lỗi và bảo trì thấp ví dụ như làm việc với GPIO sẽ có 1 file GPIO.c riêng, làm việc với ADC thì ADC.c ở những lớp cao hơn ví dụ task1 sẽ có 1 file riêng task2 sẽ có 1 file riêng khi debug thấy lỗi thứ nhất phải đoán xem lỗi ở file nào, lỗi ở đâu, lỗi ở task nào task nào thì mình sẽ chạy vào task đó sửa thôi sẽ rút ngắn phạm vi sửa lỗi lại rất nhiều, vì nếu không phân biệt những file lỗi như thế thì quản lý lỗi sẽ rất là phức tạp. Tiếp theo là hệ thống thiếu linh hoạt mở rộng và phát triển hệ thống khó khăn và làm việc nhóm sẽ khó khăn. Tức là chỉ code cho 1 file main.c nếu làm việc với project lớn, project sẽ góp sức của nhiều người vào thì họ phải vào 1 file rồi khi mà rồi sửa ở 1 file, mỗi người mỗi ý với đặt tên hàm khác nhau quăng vào chỉnh sửa nhiều thứ thì lúc này chỉnh sửa nó sẽ khó khăn. Thì vì những khó khăn này nên sẽ sinh ra tiêu chuẩn AUTOSAR, vì nó có sẵn rồi các tiêu chuẩn để dựa vào đó để lập trình, khả năng tái sử dụng phần mềm cao với các dự án khác nhau. ví dụ STM32 thì dự án của công ty là chíp renesas thì có thể quăng phần mềm từ STM32 qua renesas được, nếu có 1 task đọc nhiệt độ thì có thể dùng chung task đó qua MCU khác. Tại vì AUTOSAR phần mềm chỉ tập trung vào logic, tuần tự chương trình sẽ xảy ra như thế nào rồi task thực hiện những công việc gì.
+
+Về phần cứng thì nó sẽ liên quan khởi động bộ ngoại vi như thế nào, ngoại vi đó tương tác với hệ thống như thế nào, read, write như thế nào. AUTOSAR sẽ phân tách phần cứng và phần mềm ra, cho nên phần mềm như nhau, chỉ cần mang hệ thống phần mềm của project này sang project khác, thì phần mềm sẽ chạy được vì không cần quan tâm đến phần cứng ở dưới, nó chỉ quan tâm là chạy logic như thế nào. Dễ quản lý và bảo trì phần mềm bởi vì mỗi task sẽ có 1 module khác nhau, mỗi ngoại vi sẽ có một module khác nhau, hư chỗ nào vào đó sửa.
+
+Thì AUTOSAR là chuẩn để dựa vào tập trung vào lập trình firmware.
+
+Kiến trúc AUTOSAR có 3 lớp chính:<br>
+- Application Layer<br>
+- Runtime Environment<br>
+- Basic Software<br>
+
+Basic Software sẽ gồm 3 lớp: Services, Hostware Abstraction Layer, MCAL
+
+Phần học chỉ làm ở phần MCAL, giao tiếp với phần cứng.
+
+2.1 SWC
+
+SWC(Software-Components) là các khối phần mềm ứng dụng, đại diện cho chức năng cụ thể trong hệ thống. Các SWC là thành phần độc lập, giao tiếp với nhau và với các thành phần khác trong hệ thống thông qua RTE.
+
+- Mỗi SWC thực hiện 1 chức năng cụ thể trong hệ thống ECU.
+- Chỉ cần quan tâm đén các logic, không cần quan tâm đến phần cứng.
+
+ECU_ENGINE_CONTROL Project
+
+Trong folder sẽ có 3 folder gồm BSW, RTE, SWC
+
+Simulation dùng để chạy simulation trên VSCode.
+
+Thì ở SWC sẽ gồm những task như ECU điều khiển mô men xoắn,...
+
+Thì ở Torque_Control sẽ có 2 hàm chính là hàm Init và hàm Update, Hàm Init là hàm khởi tạo hệ thống, hàm Update dùng để đọc liên tục mô men xoắn của động cơ hiện tại.
+
+Ở hàm Init chỉ gọi lớp RTE bên dưới thôi (dùng các hàm được RTE cung cấp), lớp SWC (Application layer) nằm trên lớp RTE nên chỉ liên lạc được với lớp RTE thôi bằng cách, RTE có những cái hàm, những API, dùng những API (hàm) của RTE để phục vụ cho lập trình cho những task, ví dụ API như là digitalWrite, digitalRead, pinMode, pin,...
+
+Thì những API sẽ được cung cấp từ những lớp dưới. SWC chỉ quan tâm đến các logic, không cần quan tâm đến phần cứng. Thì nó sẽ liên lạc thông qua lớp RTE.
+
+2.2 RTE
+
+RTE (Runtime Enviroment) là lớp trung gian, đảm nhiệm việc truyền thông giữa các SWC và giữa SWC với BSW. Nó đảm bảo rằng các SWC có thể giao tiếp với nhau một cách trong suốt, không cần biết về cơ chế truyền thông thực tế. RTE có 2 chức năng chính:<br>
+- Giúp các SWC giao tiếp với nhau và là lớp trung gian với BSW.<br>
+- Phân chia lịch trình và quản lý việc gọi các chức năng.<br>
+
+SWC gọi API RTE để init tính toán logic như thế nào,... RTE trung gian giữa phần cứng và phần mềm.
+
+Ví dụ dùng API khởi tạo cảm biến tải trọng. Thì cấu hình sẽ gồm kênh ADC, tải trọng tối đa. Sau đó return sẽ gọi hàm với lớp ở dưới BSW: Abstraction layer. Nó sẽ lấy những hàm từ BSW cung cấp và nó sẽ khởi tạo lại giá trị ban đầu mà SWC yêu cầu. Khởi tạo cảm biến tải trọng thì cần có 1 bộ ADC. Cần biết khởi tạo cảm biến tại trong, không biết gì về phần cứng. Đưa ECU cho các ECU khác thì không biết làm gì với chân gì trong ECU thì việc mình phải biết chân đó là gì, ví dụ GPIO hay ADC thì quét điện cho nó.
+
+RTE chỉ có việc là gọi lên, tạo ra những thông số ban đầu cho lớp BSW khởi tạo, nếu không có RTE thì Application layer phải chọn chân nào muốn ra điện, thứ 2 là chân đó thuộc cổng nào, GPIO nào muốn input/ output chân ở chế độ nào thì Application layer phải làm, thì lúc này app layer sẽ không chuyên tâm đến logic hệ thống chúng ta nữa mà nhúng tay vào việc học kiến thức phần cứng, thì hiệu suất nhóm làm việc sẽ thấp đi. Vậy nên sẽ thêm 1 thằng biết về phần cứng, gọi phần cứng ở phía dưới lên để làm việc. Có nhiệm vụ là gọi những phần cứng lên, setup trạng thái ban đầu cho những thằng ở dưới nữa.
+
+RTE sẽ ở trung gian biết về phần cứng và logic công nghiệp nhưng không đi sâu vào việc cấu hình phần cứng. (GPIO để hoạt động theo kiểu khác làm gì, những cái khác làm những gì,...). Giúp cho SWC chỉ quan tâm đến logic, và BSW chỉ quan tâm đến việc cấu hình phần cứng.
+
+2 lớp đó sẽ có 1 tool, những task đó theo tool được viết sẵn.
+
+2.3 BSW
+
+BSW (Basic Software)) là lớp phần mềm nền tảng để hỗ trợ phần mềm ứng dụng (SWC) hoạt động trên phần cứng. BSW cung cấp dịch vụ cơ bản như quản lý phần cứng, giao tiếp, chẩn đoán, và các dịch vụ hệ thống.
+
+- Service: Cung cấp các dịch vụ hệ thống, tiện ích và quản lý cần thiết để hỗ trợ các lớp phần mềm ứng dụng và BSW khác.<br>
+- EAL (ECU Abstraction Layer): Cung cấp một giao diện trừu tượng cho tất cả các thiết bị ngoại vi và phần cứng cụ thể của ECU như các cảm biến mà ECU sử dụng.<br>
+- MCAL (Microcontroller Abstraction Layer): Cung cấp giao diện trừu tượng để tương tác trực tiếp với các thành phần phần cứng của vi điều khiển như GPIO, ADC, PWM,...
+
+35:00
 
 
 
